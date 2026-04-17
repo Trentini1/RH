@@ -1,5 +1,5 @@
 import { onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 import { auth, db, secondaryAuth } from "./firebase-config.js";
 
 // DOM Elements - Header
@@ -10,10 +10,36 @@ const logoutBtn = document.getElementById('logout-btn');
 const navHome = document.getElementById('nav-home');
 const navEmployees = document.getElementById('nav-employees');
 
+// Variável global para armazenar nível de acesso
+let isCurrentUserAdmin = false;
+
 // Verifica Autenticação
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         userEmailSpan.textContent = user.email;
+        
+        // Busca os dados do usuário logado no Firestore
+        try {
+            const userDoc = await getDoc(doc(db, "funcionarios", user.uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                document.getElementById('user-name').textContent = data.nome || 'Colaborador';
+                isCurrentUserAdmin = data.isAdmin === true;
+            } else {
+                // Se o documento não existir, presumimos que é o admin mestre (criado manualmente no console)
+                document.getElementById('user-name').textContent = 'Administrador';
+                isCurrentUserAdmin = true;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário: ", error);
+        }
+
+        // Oculta a aba de Administração e o label 'Sistema' se não for Admin
+        if (!isCurrentUserAdmin) {
+            document.getElementById('nav-admin').style.display = 'none';
+            document.getElementById('label-admin').style.display = 'none';
+        }
+
         // Ao iniciar, carrega a contagem total de funcionários na tela principal
         loadEmployeesCount();
     } else {
@@ -89,6 +115,12 @@ const registerBtn = document.getElementById('register-btn');
 if(registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        if (!isCurrentUserAdmin) {
+            alert('Você não tem permissão de Administrador para realizar esta ação.');
+            return;
+        }
+
         registerBtn.textContent = 'Cadastrando...';
         registerBtn.disabled = true;
 
@@ -107,6 +139,7 @@ if(registerForm) {
                 nome: name,
                 email: email,
                 cargo: role,
+                isAdmin: false, // Novos cadastros por aqui são funcionários comuns
                 dataCadastro: new Date().toISOString()
             });
 
