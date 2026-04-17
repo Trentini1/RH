@@ -18,7 +18,7 @@
         </div>
 
         <nav class="sidebar-nav">
-            <div class="nav-section-label">Principal</div>
+            <div class="nav-section-label" id="label-home">Principal</div>
 
             <button class="nav-item active" id="nav-home">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -38,6 +38,16 @@
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
                 Funcionários
+            </button>
+
+            <div class="nav-section-label" id="label-personal" style="margin-top: 10px;">Pessoal</div>
+
+            <button class="nav-item" id="nav-my-area">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Minha Área
             </button>
 
             <div class="nav-section-label" id="label-admin" style="margin-top: 10px;">Sistema</div>
@@ -119,6 +129,27 @@
                 </div>
             </section>
 
+            <!-- ===== SEÇÃO: MINHA ÁREA (Visão do Funcionário) ===== -->
+            <section id="section-my-area" class="hidden">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Meu Salário</div>
+                        <div class="metric-value">R$ --,--</div>
+                        <div class="metric-sub info">Exportar holerite</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Banco de Horas</div>
+                        <div class="metric-value">0h 00m</div>
+                        <div class="metric-sub">Registro de ponto</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Meus Documentos</div>
+                        <div class="metric-value">3</div>
+                        <div class="metric-sub">Ver documentação</div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ===== SEÇÃO: ADMINISTRAÇÃO ===== -->
             <section id="section-admin" class="hidden">
                 <div class="form-card">
@@ -139,6 +170,13 @@
                             <input type="text" id="new-role" placeholder="Ex: Desenvolvedor Front-end" required>
                         </div>
                         <div class="input-group">
+                            <label for="new-access">Nível de Acesso</label>
+                            <select id="new-access" required>
+                                <option value="funcionario">Funcionário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
                             <label for="new-password">Senha Inicial</label>
                             <input type="password" id="new-password" placeholder="Mínimo 6 caracteres" required>
                         </div>
@@ -148,6 +186,35 @@
                     </form>
                 </div>
             </section>
+
+            <!-- ===== MODAL DE EDIÇÃO ===== -->
+            <div id="edit-modal" class="modal hidden">
+                <div class="modal-content form-card">
+                    <h3>Editar Colaborador</h3>
+                    <form id="edit-employee-form">
+                        <input type="hidden" id="edit-uid">
+                        <div class="input-group">
+                            <label for="edit-name">Nome Completo</label>
+                            <input type="text" id="edit-name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="edit-role">Cargo / Setor</label>
+                            <input type="text" id="edit-role" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="edit-access">Nível de Acesso</label>
+                            <select id="edit-access" required>
+                                <option value="funcionario">Funcionário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 16px;">
+                            <button type="submit" class="btn-primary" id="save-edit-btn">Salvar Alterações</button>
+                            <button type="button" class="btn-secondary" id="close-edit-modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
         </div><!-- /page-body -->
     </div><!-- /main-content -->
@@ -163,12 +230,14 @@
     const titles = {
         'nav-home':      { title: 'Visão Geral',       sub: 'Bem-vindo ao painel de controle' },
         'nav-employees': { title: 'Funcionários',       sub: 'Lista de colaboradores cadastrados' },
+        'nav-my-area':   { title: 'Minha Área',         sub: 'Suas informações e documentos' },
         'nav-admin':     { title: 'Administração',      sub: 'Cadastro de novos colaboradores' },
     };
 
     // Dispara eventos de clique para manter compatibilidade com dashboard.js
     document.getElementById('nav-home').addEventListener('click', () => setPage('nav-home', 'section-home'));
     document.getElementById('nav-employees').addEventListener('click', () => setPage('nav-employees', 'section-employees'));
+    document.getElementById('nav-my-area').addEventListener('click', () => setPage('nav-my-area', 'section-my-area'));
     document.getElementById('nav-admin').addEventListener('click', () => setPage('nav-admin', 'section-admin'));
 
     function setPage(navId, sectionId) {

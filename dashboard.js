@@ -1,5 +1,5 @@
 import { onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { collection, getDocs, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { collection, getDocs, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 import { auth, db, secondaryAuth } from "./firebase-config.js";
 
 // DOM Elements - Header
@@ -34,10 +34,19 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Erro ao buscar dados do usuário: ", error);
         }
 
-        // Oculta a aba de Administração e o label 'Sistema' se não for Admin
         if (!isCurrentUserAdmin) {
+            // Se for funcionário, esconde todo o resto e mostra só "Minha Área"
+            document.getElementById('label-home').style.display = 'none';
+            document.getElementById('nav-home').style.display = 'none';
+            document.getElementById('nav-employees').style.display = 'none';
             document.getElementById('nav-admin').style.display = 'none';
             document.getElementById('label-admin').style.display = 'none';
+            
+            // Clica artificialmente para ir direto para Minha Área
+            document.getElementById('nav-my-area').click();
+        } else {
+            // Se for admin, a aba Minha Área fica acessível e o início foca na Visão Geral
+            document.getElementById('nav-home').click();
         }
 
         // Ao iniciar, carrega a contagem total de funcionários na tela principal
@@ -90,18 +99,31 @@ async function loadEmployeesData() {
         }
 
         let html = '<table class="rh-table">';
-        html += '<tr><th>Nome</th><th>Email</th><th>Cargo</th></tr>';
+        html += '<tr><th>Nome</th><th>Email</th><th>Cargo</th><th>Acesso</th><th>Ações</th></tr>';
         
         querySnapshot.forEach((doc) => {
             const data = doc.data();
+            const badge = data.isAdmin ? '<span class="pill pill-amber">Admin</span>' : '<span class="pill pill-green">Func.</span>';
+            
             html += `<tr>
                         <td><div class="emp-name">${data.nome || 'N/A'}</div></td>
                         <td><div class="emp-email">${data.email || 'N/A'}</div></td>
                         <td>${data.cargo || 'N/A'}</td>
+                        <td>${badge}</td>
+                        <td><button class="btn-secondary btn-edit" data-uid="${doc.id}">Editar</button></td>
                      </tr>`;
         });
         html += '</table>';
         employeesList.innerHTML = html;
+
+        // Adiciona eventos aos botões de editar renderizados
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const uid = e.target.getAttribute('data-uid');
+                await openEditModal(uid);
+            });
+        });
+
     } catch (error) {
         console.error("Erro ao carregar tabela: ", error);
         employeesList.innerHTML = '<p class="text-muted" style="padding: 16px 20px;">Erro ao carregar dados do servidor.</p>';
@@ -127,6 +149,7 @@ if(registerForm) {
         const name = document.getElementById('new-name').value;
         const email = document.getElementById('new-email').value;
         const role = document.getElementById('new-role').value;
+        const accessLevel = document.getElementById('new-access').value;
         const password = document.getElementById('new-password').value;
 
         try {
@@ -139,7 +162,7 @@ if(registerForm) {
                 nome: name,
                 email: email,
                 cargo: role,
-                isAdmin: false, // Novos cadastros por aqui são funcionários comuns
+                isAdmin: accessLevel === 'admin',
                 dataCadastro: new Date().toISOString()
             });
 
@@ -158,3 +181,51 @@ if(registerForm) {
         }
     });
 }
+
+// ==============================
+// LÓGICA DO MODAL DE EDIÇÃO
+// ==============================
+async function openEditModal(uid) {
+    try {
+        const docRef = doc(db, "funcionarios", uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            document.getElementById('edit-uid').value = uid;
+            document.getElementById('edit-name').value = data.nome || '';
+            document.getElementById('edit-role').value = data.cargo || '';
+            document.getElementById('edit-access').value = data.isAdmin ? 'admin' : 'funcionario';
+            
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+    } catch(error) {
+        alert("Erro ao buscar dados: " + error.message);
+    }
+}
+
+document.getElementById('close-edit-modal').addEventListener('click', () => {
+    document.getElementById('edit-modal').classList.add('hidden');
+});
+
+document.getElementById('edit-employee-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('save-edit-btn').textContent = "Salvando...";
+    
+    try {
+        const uid = document.getElementById('edit-uid').value;
+        await updateDoc(doc(db, "funcionarios", uid), {
+            nome: document.getElementById('edit-name').value,
+            cargo: document.getElementById('edit-role').value,
+            isAdmin: document.getElementById('edit-access').value === 'admin'
+        });
+        
+        alert("Colaborador atualizado com sucesso!");
+        document.getElementById('edit-modal').classList.add('hidden');
+        loadEmployeesData(); // Atualiza a tabela na tela
+    } catch(error) {
+        alert("Erro ao atualizar: " + error.message);
+    } finally {
+        document.getElementById('save-edit-btn').textContent = "Salvar Alterações";
+    }
+});
