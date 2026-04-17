@@ -8,14 +8,14 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('user-email').textContent = user.email;
     } else {
         // Se não tiver logado, expulsa para o index
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     }
 });
 
 // Lógica de Logout
 document.getElementById('logout-btn').addEventListener('click', () => {
     signOut(auth).then(() => {
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     });
 });
 
@@ -26,6 +26,7 @@ const addBtn = document.getElementById('add-btn');
 addUserForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     addBtn.textContent = 'Cadastrando...';
+    addBtn.disabled = true; // Impede clique duplo
 
     const name = document.getElementById('new-name').value;
     const email = document.getElementById('new-email').value;
@@ -69,6 +70,7 @@ addUserForm.addEventListener('submit', async (e) => {
         }
     } finally {
         addBtn.textContent = 'Cadastrar Funcionário';
+        addBtn.disabled = false; // Libera o botão novamente
         // Desloga do app secundário para limpar a sessão cacheada dele
         await signOut(secondaryAuth);
     }
