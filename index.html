@@ -3,15 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RH Manager - Início</title>
+    <title>RH Manager</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="home-container">
-        <div class="home-box">
-            <h1>Bem-vindo ao RH Manager</h1>
-            <p>Sistema Integrado de Gestão de Ponto e Holerites</p>
-            <a href="login.html" class="btn-primary">Acessar Área do Sistema</a>
+        <!-- Lado esquerdo: branding -->
+        <div class="home-left">
+            <div class="home-logo">RH Manager</div>
+
+            <h1 class="home-headline">
+                Gestão de<br>pessoas <span>simplificada</span>.
+            </h1>
+            <p class="home-desc">
+                Controle funcionários, jornada e holerites em um único lugar.
+                Rápido, seguro e integrado com seu time.
+            </p>
+
+            <a href="login.html" class="btn-primary" style="width: auto; padding: 14px 32px;">
+                Acessar o Sistema →
+            </a>
+        </div>
+
+        <!-- Lado direito: mini preview decorativo -->
+        <div class="home-right">
+            <div style="width: 100%; max-width: 340px;">
+                <div style="background: #fff; border-radius: 12px; border: 0.5px solid #e4e8f0; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.08);">
+                    <div style="padding: 16px 20px; border-bottom: 0.5px solid #e4e8f0; display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></div>
+                        <span style="font-size: 13px; font-weight: 600; color: #0f1623; font-family: 'Sora', sans-serif;">Visão Geral</span>
+                    </div>
+                    <div style="padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="background: #f8fafc; border-radius: 8px; padding: 14px;">
+                            <div style="font-size: 10px; color: #8a96a8; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 6px;">Funcionários</div>
+                            <div style="font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; color: #0f1623;">24</div>
+                        </div>
+                        <div style="background: #f8fafc; border-radius: 8px; padding: 14px;">
+                            <div style="font-size: 10px; color: #8a96a8; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 6px;">Em Férias</div>
+                            <div style="font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; color: #0f1623;">3</div>
+                        </div>
+                    </div>
+                    <div style="padding: 0 20px 16px;">
+                        <div style="font-size: 11px; font-weight: 600; color: #4a5a70; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.7px;">Funcionários Recentes</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #15803d; flex-shrink: 0;">JS</div>
+                                <div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #0f1623;">João da Silva</div>
+                                    <div style="font-size: 11px; color: #8a96a8;">Dev. Front-end</div>
+                                </div>
+                                <span style="margin-left: auto; font-size: 10px; background: #e8f5e9; color: #15803d; padding: 2px 8px; border-radius: 20px; font-weight: 600;">Ativo</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #fef9c3; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #a16207; flex-shrink: 0;">AL</div>
+                                <div>
+                                    <div style="font-size: 12px; font-weight: 600; color: #0f1623;">Ana Lima</div>
+                                    <div style="font-size: 11px; color: #8a96a8;">Designer UI/UX</div>
+                                </div>
+                                <span style="margin-left: auto; font-size: 10px; background: #fef9c3; color: #a16207; padding: 2px 8px; border-radius: 20px; font-weight: 600;">Férias</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 12px; color: #8a96a8; margin-top: 20px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                    Dados seguros com Firebase &amp; autenticação em tempo real
+                </p>
+            </div>
         </div>
     </div>
 </body>
