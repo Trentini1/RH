@@ -41,6 +41,8 @@ onAuthStateChanged(auth, async (user) => {
             document.getElementById('nav-employees').style.display = 'none';
             document.getElementById('nav-admin').style.display = 'none';
             document.getElementById('label-admin').style.display = 'none';
+            document.getElementById('nav-admin-hours').style.display = 'none';
+            document.getElementById('nav-admin-payslips').style.display = 'none';
             
             // Clica artificialmente para ir direto para Minha Área
             document.getElementById('nav-my-area').click();
@@ -51,6 +53,9 @@ onAuthStateChanged(auth, async (user) => {
 
         // Ao iniciar, carrega a contagem total de funcionários na tela principal
         loadEmployeesCount();
+        
+        // Renderiza o calendário do funcionário logado
+        renderEmployeeCalendar();
     } else {
         // Usuário não está logado, redireciona para a página de login
         window.location.href = 'login.html';
@@ -229,3 +234,70 @@ document.getElementById('edit-employee-form').addEventListener('submit', async (
         document.getElementById('save-edit-btn').textContent = "Salvar Alterações";
     }
 });
+
+// ==============================
+// LÓGICA DO CALENDÁRIO
+// ==============================
+function renderEmployeeCalendar() {
+    const calendarGrid = document.getElementById('interactive-calendar');
+    const header = document.getElementById('calendar-month-year');
+    
+    if(!calendarGrid) return;
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    header.textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    let html = '';
+    // Dias vazios do mês passado
+    for (let i = 0; i < firstDay; i++) {
+        html += `<div class="calendar-day" style="background: transparent; border-color: transparent;"></div>`;
+    }
+    // Dias do mês atual
+    for (let i = 1; i <= daysInMonth; i++) {
+        // Simulando eventos aleatórios para deixar interativo
+        let eventHtml = '';
+        if(i === 15) eventHtml = '<div style="font-size:10px; color:var(--accent-green); margin-top:5px;">✓ Ponto Registrado</div>';
+        if(i === 22) eventHtml = '<div style="font-size:10px; color:var(--accent-red); margin-top:5px;">! Falta Injustificada</div>';
+        
+        html += `<div class="calendar-day">${i}${eventHtml}</div>`;
+    }
+    calendarGrid.innerHTML = html;
+}
+
+// ==============================
+// LÓGICA DO OCR (Simulação Frontend)
+// ==============================
+const dropzone = document.getElementById('ocr-dropzone');
+const fileInput = document.getElementById('ocr-file-input');
+const processingDiv = document.getElementById('ocr-processing');
+const resultForm = document.getElementById('ocr-result-form');
+
+if(dropzone && fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+        if(e.target.files.length > 0) {
+            processingDiv.classList.remove('hidden');
+            resultForm.classList.add('hidden');
+            
+            // Simula o tempo de latência de uma API OCR como o Tesseract ou Google Vision
+            setTimeout(() => {
+                processingDiv.classList.add('hidden');
+                resultForm.classList.remove('hidden');
+                
+                // Preenche formulário com dados mockados extraídos pela IA simulada
+                document.getElementById('ocr-name').value = "João da Silva Sauro";
+                document.getElementById('ocr-base').value = "3.450,00";
+                document.getElementById('ocr-discounts').value = "285,40";
+                
+            }, 3000);
+        }
+    });
+}

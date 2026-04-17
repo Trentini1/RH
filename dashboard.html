@@ -59,6 +59,25 @@
                 </svg>
                 Administração
             </button>
+
+            <button class="nav-item" id="nav-admin-hours">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Lançamento de Horas
+            </button>
+
+            <button class="nav-item" id="nav-admin-payslips">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                Holerites (OCR)
+            </button>
         </nav>
 
         <div class="sidebar-user">
@@ -138,14 +157,31 @@
                         <div class="metric-sub info">Exportar holerite</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-label">Banco de Horas</div>
-                        <div class="metric-value">0h 00m</div>
-                        <div class="metric-sub">Registro de ponto</div>
+                        <div class="metric-label">Saldo do Banco de Horas</div>
+                        <div class="metric-value" id="employee-hour-bank">+ 12h 30m</div>
+                        <div class="metric-sub" id="employee-hour-status" style="color: var(--accent-green); font-weight: bold;">Saldo Positivo</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Meus Documentos</div>
                         <div class="metric-value">3</div>
                         <div class="metric-sub">Ver documentação</div>
+                    </div>
+                </div>
+
+                <div class="section-block">
+                    <div class="section-block-header">
+                        <span class="section-block-title">Meu Calendário - Registro de Ponto e Férias</span>
+                    </div>
+                    <div class="section-block-body">
+                        <div class="calendar-wrapper">
+                            <div class="calendar-header" id="calendar-month-year">Novembro 2023</div>
+                            <div class="calendar-weekdays">
+                                <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+                            </div>
+                            <div class="calendar-grid" id="interactive-calendar">
+                                <!-- JS vai popular os dias aqui -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -184,6 +220,76 @@
                             Cadastrar Funcionário
                         </button>
                     </form>
+                </div>
+            </section>
+
+            <!-- ===== SEÇÃO: LANÇAMENTO DE HORAS (Admin) ===== -->
+            <section id="section-admin-hours" class="hidden">
+                <div class="form-card" style="max-width: 100%;">
+                    <h3>Lançamento de Horas e Ponto</h3>
+                    <p>Selecione o colaborador para registrar entradas, saídas ou ajustar o banco de horas.</p>
+                    
+                    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px;">
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="hour-employee-select">Colaborador</label>
+                            <select id="hour-employee-select">
+                                <option value="">Carregando colaboradores...</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="hour-date">Data de Referência</label>
+                            <input type="date" id="hour-date">
+                        </div>
+                        <div class="input-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="hour-amount">Horas a Lançar (+/-)</label>
+                            <input type="number" id="hour-amount" placeholder="Ex: 2.5 ou -1.0" step="0.5">
+                        </div>
+                        <button class="btn-primary" style="width: auto;">Registrar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SEÇÃO: HOLERITES OCR (Admin) ===== -->
+            <section id="section-admin-payslips" class="hidden">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-card" style="max-width: 100%;">
+                        <h3>Importar Holerite (Leitor OCR)</h3>
+                        <p>Faça o upload do PDF ou imagem do holerite. O sistema tentará extrair os dados automaticamente.</p>
+                        
+                        <div class="upload-dropzone" id="ocr-dropzone">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 10px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <p>Arraste o arquivo aqui ou <strong>clique para selecionar</strong></p>
+                            <input type="file" id="ocr-file-input" accept="image/*,application/pdf" style="display: none;">
+                        </div>
+                        
+                        <div id="ocr-processing" class="hidden" style="text-align: center; padding: 20px; color: var(--accent);">
+                            <p>⏳ Analisando documento via OCR... Aguarde.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-card hidden" id="ocr-result-form" style="max-width: 100%;">
+                        <h3>Holerite Simplificado Extraído</h3>
+                        <p>Revise os dados lidos pela IA antes de salvar no sistema.</p>
+                        <form id="save-payslip-form">
+                            <div class="input-group">
+                                <label>Nome do Colaborador Identificado</label>
+                                <input type="text" id="ocr-name" value="">
+                            </div>
+                            <div class="input-group">
+                                <label>Salário Base (R$)</label>
+                                <input type="text" id="ocr-base" value="">
+                            </div>
+                            <div class="input-group">
+                                <label>Total de Descontos (R$)</label>
+                                <input type="text" id="ocr-discounts" value="">
+                            </div>
+                            <button type="button" class="btn-primary" id="save-ocr-btn">Salvar Holerite no Perfil</button>
+                        </form>
+                    </div>
                 </div>
             </section>
 
@@ -232,6 +338,8 @@
         'nav-employees': { title: 'Funcionários',       sub: 'Lista de colaboradores cadastrados' },
         'nav-my-area':   { title: 'Minha Área',         sub: 'Suas informações e documentos' },
         'nav-admin':     { title: 'Administração',      sub: 'Cadastro de novos colaboradores' },
+        'nav-admin-hours':{ title: 'Gestão de Ponto',   sub: 'Controle de carga horária da equipe' },
+        'nav-admin-payslips':{ title: 'Importação de Holerites', sub: 'Leitura OCR inteligente de documentos' },
     };
 
     // Dispara eventos de clique para manter compatibilidade com dashboard.js
@@ -239,6 +347,8 @@
     document.getElementById('nav-employees').addEventListener('click', () => setPage('nav-employees', 'section-employees'));
     document.getElementById('nav-my-area').addEventListener('click', () => setPage('nav-my-area', 'section-my-area'));
     document.getElementById('nav-admin').addEventListener('click', () => setPage('nav-admin', 'section-admin'));
+    document.getElementById('nav-admin-hours').addEventListener('click', () => setPage('nav-admin-hours', 'section-admin-hours'));
+    document.getElementById('nav-admin-payslips').addEventListener('click', () => setPage('nav-admin-payslips', 'section-admin-payslips'));
 
     function setPage(navId, sectionId) {
         navButtons.forEach(b => b.classList.remove('active'));
