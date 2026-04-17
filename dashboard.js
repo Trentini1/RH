@@ -1,196 +1,127 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — RH Manager</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="dashboard-wrap">
+import { onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { auth, db, secondaryAuth } from "./firebase-config.js";
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-name">RH Manager</div>
-            <div class="brand-sub">Gestão de Pessoas</div>
-        </div>
+// DOM Elements - Header
+const userEmailSpan = document.getElementById('user-email');
+const logoutBtn = document.getElementById('logout-btn');
 
-        <nav class="sidebar-nav">
-            <div class="nav-section-label">Principal</div>
+// DOM Elements - Nav
+const navHome = document.getElementById('nav-home');
+const navEmployees = document.getElementById('nav-employees');
 
-            <button class="nav-item active" id="nav-home">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1"/>
-                    <rect x="14" y="14" width="7" height="7" rx="1"/>
-                </svg>
-                Visão Geral
-            </button>
-
-            <button class="nav-item" id="nav-employees">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                Funcionários
-            </button>
-
-            <div class="nav-section-label" style="margin-top: 10px;">Sistema</div>
-
-            <button class="nav-item" id="nav-admin">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M5.93 4.93a10 10 0 0 0 0 14.14"/>
-                </svg>
-                Administração
-            </button>
-        </nav>
-
-        <div class="sidebar-user">
-            <div class="user-avatar" id="user-initials">--</div>
-            <div style="min-width: 0;">
-                <div class="user-info-name">Administrador</div>
-                <div class="user-info-email" id="user-email">Carregando...</div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- ===== MAIN ===== -->
-    <div class="main-content">
-
-        <!-- Topbar -->
-        <header class="topbar">
-            <div class="topbar-left">
-                <div class="page-title" id="topbar-title">Visão Geral</div>
-                <div class="page-sub" id="topbar-sub">Bem-vindo ao painel de controle</div>
-            </div>
-            <div class="topbar-right">
-                <button class="btn-danger" id="logout-btn">Sair</button>
-            </div>
-        </header>
-
-        <!-- Page Body -->
-        <div class="page-body">
-
-            <!-- ===== SEÇÃO: VISÃO GERAL ===== -->
-            <section id="section-home">
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">Total de Funcionários</div>
-                        <div class="metric-value" id="total-employees-count">—</div>
-                        <div class="metric-sub info">Atualizado em tempo real</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Avisos Pendentes</div>
-                        <div class="metric-value">0</div>
-                        <div class="metric-sub">Nenhum aviso</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Status do Sistema</div>
-                        <div class="metric-value" style="font-size: 20px; margin-top: 6px;">✓ Online</div>
-                        <div class="metric-sub">Firebase conectado</div>
-                    </div>
-                </div>
-
-                <div class="section-block">
-                    <div class="section-block-header">
-                        <span class="section-block-title">Avisos e Lembretes</span>
-                    </div>
-                    <div class="section-block-body">
-                        <p class="text-muted">Nenhum aviso pendente no momento.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SEÇÃO: FUNCIONÁRIOS ===== -->
-            <section id="section-employees" class="hidden">
-                <div class="section-block">
-                    <div class="section-block-header">
-                        <span class="section-block-title">Quadro de Funcionários</span>
-                    </div>
-                    <div id="employees-list" style="overflow-x: auto; padding: 4px 0;">
-                        <p class="text-muted" style="padding: 16px 20px;">Carregando dados dos funcionários...</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== SEÇÃO: ADMINISTRAÇÃO ===== -->
-            <section id="section-admin" class="hidden">
-                <div class="form-card">
-                    <h3>Cadastrar Novo Colaborador</h3>
-                    <p>Esta ação usa a conta secundária para não encerrar sua sessão atual.</p>
-
-                    <form id="register-employee-form">
-                        <div class="input-group">
-                            <label for="new-name">Nome Completo</label>
-                            <input type="text" id="new-name" placeholder="Ex: João da Silva" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="new-email">E-mail Profissional</label>
-                            <input type="email" id="new-email" placeholder="joao@empresa.com" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="new-role">Cargo / Setor</label>
-                            <input type="text" id="new-role" placeholder="Ex: Desenvolvedor Front-end" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="new-password">Senha Inicial</label>
-                            <input type="password" id="new-password" placeholder="Mínimo 6 caracteres" required>
-                        </div>
-                        <button type="submit" id="register-btn" class="btn-primary" style="margin-top: 8px;">
-                            Cadastrar Funcionário
-                        </button>
-                    </form>
-                </div>
-            </section>
-
-        </div><!-- /page-body -->
-    </div><!-- /main-content -->
-</div><!-- /dashboard-wrap -->
-
-<script type="module" src="dashboard.js"></script>
-
-<script>
-    // Controle de navegação das abas (lógica de UI pura, sem tocar no dashboard.js)
-    const navButtons = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('[id^="section-"]');
-
-    const titles = {
-        'nav-home':      { title: 'Visão Geral',       sub: 'Bem-vindo ao painel de controle' },
-        'nav-employees': { title: 'Funcionários',       sub: 'Lista de colaboradores cadastrados' },
-        'nav-admin':     { title: 'Administração',      sub: 'Cadastro de novos colaboradores' },
-    };
-
-    // Dispara eventos de clique para manter compatibilidade com dashboard.js
-    document.getElementById('nav-home').addEventListener('click', () => setPage('nav-home', 'section-home'));
-    document.getElementById('nav-employees').addEventListener('click', () => setPage('nav-employees', 'section-employees'));
-    document.getElementById('nav-admin').addEventListener('click', () => setPage('nav-admin', 'section-admin'));
-
-    function setPage(navId, sectionId) {
-        navButtons.forEach(b => b.classList.remove('active'));
-        document.getElementById(navId).classList.add('active');
-
-        sections.forEach(s => s.classList.add('hidden'));
-        document.getElementById(sectionId).classList.remove('hidden');
-
-        document.getElementById('topbar-title').textContent = titles[navId].title;
-        document.getElementById('topbar-sub').textContent   = titles[navId].sub;
+// Verifica Autenticação
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        userEmailSpan.textContent = user.email;
+        // Ao iniciar, carrega a contagem total de funcionários na tela principal
+        loadEmployeesCount();
+    } else {
+        // Usuário não está logado, redireciona para a página de login
+        window.location.href = 'login.html';
     }
+});
 
-    // Atualiza as iniciais do avatar com base no e-mail
-    const emailObserver = new MutationObserver(() => {
-        const email = document.getElementById('user-email').textContent;
-        if (email && email !== 'Carregando...') {
-            const initials = email.substring(0, 2).toUpperCase();
-            document.getElementById('user-initials').textContent = initials;
+// Lógica de Logout
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+    } catch (error) {
+        alert('Erro ao sair: ' + error.message);
+    }
+});
+
+// Gatilhos de carregamento de dados ao clicar nas abas
+navHome.addEventListener('click', () => {
+    loadEmployeesCount();
+});
+
+navEmployees.addEventListener('click', () => {
+    loadEmployeesData();
+});
+
+// Funções do Firestore (Leitura)
+async function loadEmployeesCount() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "funcionarios"));
+        document.getElementById('total-employees-count').textContent = querySnapshot.size;
+    } catch (error) {
+        console.error("Erro ao buscar a contagem de funcionários: ", error);
+        document.getElementById('total-employees-count').textContent = "Erro";
+    }
+}
+
+async function loadEmployeesData() {
+    const employeesList = document.getElementById('employees-list');
+    employeesList.innerHTML = '<p class="text-muted" style="padding: 16px 20px;">Carregando...</p>';
+    
+    try {
+        const querySnapshot = await getDocs(collection(db, "funcionarios"));
+        if (querySnapshot.empty) {
+            employeesList.innerHTML = '<p class="text-muted" style="padding: 16px 20px;">Nenhum funcionário encontrado.</p>';
+            return;
+        }
+
+        let html = '<table class="rh-table">';
+        html += '<tr><th>Nome</th><th>Email</th><th>Cargo</th></tr>';
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            html += `<tr>
+                        <td><div class="emp-name">${data.nome || 'N/A'}</div></td>
+                        <td><div class="emp-email">${data.email || 'N/A'}</div></td>
+                        <td>${data.cargo || 'N/A'}</td>
+                     </tr>`;
+        });
+        html += '</table>';
+        employeesList.innerHTML = html;
+    } catch (error) {
+        console.error("Erro ao carregar tabela: ", error);
+        employeesList.innerHTML = '<p class="text-muted" style="padding: 16px 20px;">Erro ao carregar dados do servidor.</p>';
+    }
+}
+
+// Função para Cadastrar Novo Funcionário (Admins)
+const registerForm = document.getElementById('register-employee-form');
+const registerBtn = document.getElementById('register-btn');
+
+if(registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        registerBtn.textContent = 'Cadastrando...';
+        registerBtn.disabled = true;
+
+        const name = document.getElementById('new-name').value;
+        const email = document.getElementById('new-email').value;
+        const role = document.getElementById('new-role').value;
+        const password = document.getElementById('new-password').value;
+
+        try {
+            // 1. Cria conta de auth no aplicativo secundário
+            const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+            const newUserId = userCredential.user.uid;
+
+            // 2. Grava os dados adicionais no banco Firestore
+            await setDoc(doc(db, "funcionarios", newUserId), {
+                nome: name,
+                email: email,
+                cargo: role,
+                dataCadastro: new Date().toISOString()
+            });
+
+            alert('Funcionário cadastrado com sucesso!');
+            registerForm.reset();
+            
+            // Limpa senha logada no Auth Secundário, para segurança
+            await signOut(secondaryAuth);
+            
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao cadastrar funcionário: ' + error.message);
+        } finally {
+            registerBtn.textContent = 'Cadastrar Funcionário';
+            registerBtn.disabled = false;
         }
     });
-    emailObserver.observe(document.getElementById('user-email'), { childList: true, characterData: true, subtree: true });
-</script>
-
-</body>
-</html>
+}
