@@ -3,75 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RH Manager - Dashboard</title>
+    <title>Dashboard - Sistema RH</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Barra de Navegação Superior -->
     <nav class="navbar">
-        <h2>Painel Admin RH</h2>
-        <div class="user-info">
-            <span id="user-email"></span>
-            <button id="logout-btn">Sair</button>
+        <div class="logo"><h2>Sistema RH</h2></div>
+        <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
+            <span id="user-email">Carregando...</span>
+            <button id="logout-btn" class="btn-secondary" style="background-color: #e74c3c;">Sair</button>
         </div>
     </nav>
 
     <div class="dashboard-content">
-        <section class="admin-section">
-            <h3>Cadastrar Novo Funcionário</h3>
-            <form id="add-user-form" class="card-form">
-                <div class="input-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="new-name" required>
+        <!-- Menu de Navegação Interna -->
+        <div class="action-buttons" style="margin-bottom: 25px; gap: 15px; justify-content: flex-start;">
+            <button class="btn-primary" id="nav-home">Visão Geral</button>
+            <button class="btn-primary" id="nav-employees">Funcionários</button>
+            <!-- Botão de administração (pode ser ocultado dependendo do nível de acesso no futuro) -->
+            <button class="btn-primary" id="nav-admin">Administração</button>
+        </div>
+
+        <!-- 1. Seção: Visão Geral -->
+        <section id="section-home" class="admin-section">
+            <h2>Visão Geral do Painel</h2>
+            <p>Bem-vindo ao sistema de controle de Recursos Humanos.</p>
+            
+            <div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; padding: 25px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #eee;">
+                    <h3>Total de Funcionários</h3>
+                    <p style="font-size: 36px; font-weight: bold; color: #2c3e50; margin-top: 10px;" id="total-employees-count">-</p>
                 </div>
-                <div class="input-group">
-                    <label>E-mail (Login)</label>
-                    <input type="email" id="new-email" required>
+                <div style="flex: 1; padding: 25px; background: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #eee;">
+                    <h3>Avisos e Lembretes</h3>
+                    <p style="margin-top: 10px; color: #7f8c8d;">Nenhum aviso pendente no momento.</p>
                 </div>
-                <div class="input-group">
-                    <label>Senha Provisória</label>
-                    <input type="password" id="new-password" required minlength="6">
-                </div>
-                <div class="input-group">
-                    <label>Cargo/Função</label>
-                    <input type="text" id="new-role" required>
-                </div>
-                <div class="input-group">
-                    <label>Salário</label>
-                    <input type="number" id="new-salary" step="0.01" required>
-                </div>
-                <div class="input-group">
-                    <label>Endereço</label>
-                    <input type="text" id="new-address" required>
-                </div>
-                <div class="input-group">
-                    <label>Horário de Entrada</label>
-                    <input type="time" id="new-entry-time" required>
-                </div>
-                <div class="input-group">
-                    <label>Horário de Saída</label>
-                    <input type="time" id="new-exit-time" required>
-                </div>
-                <div class="input-group">
-                    <label>Início do Almoço</label>
-                    <input type="time" id="new-lunch-start" required>
-                </div>
-                <div class="input-group">
-                    <label>Fim do Almoço</label>
-                    <input type="time" id="new-lunch-end" required>
-                </div>
-                <div class="input-group">
-                    <label>Data de Entrada</label>
-                    <input type="date" id="new-start-date" required>
-                </div>
-                <button type="submit" id="add-btn">Cadastrar Funcionário</button>
-            </form>
+            </div>
         </section>
 
-        <section class="admin-section">
-            <h3>Ações Futuras</h3>
-            <p>Em breve: Lançamento de Holerites e Fechamento de Ponto.</p>
+        <!-- 2. Seção: Lista de Funcionários -->
+        <section id="section-employees" class="admin-section hidden">
+            <h2>Quadro de Funcionários</h2>
+            <p>Abaixo estão os funcionários registrados no sistema.</p>
+            <div id="employees-list" style="margin-top: 20px; overflow-x: auto;">
+                <p>Carregando dados dos funcionários...</p>
+            </div>
+        </section>
+
+        <!-- 3. Seção: Administração (Cadastro) -->
+        <section id="section-admin" class="admin-section hidden">
+            <h2>Área de Administração</h2>
+            <p>Cadastre novos colaboradores. Esta ação usa a conta secundária para não deslogar você.</p>
+            
+            <div style="margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
+                <form id="register-employee-form" style="max-width: 500px;">
+                    <div class="input-group">
+                        <label for="new-name">Nome Completo</label>
+                        <input type="text" id="new-name" placeholder="Ex: João da Silva" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="new-email">E-mail Profissional</label>
+                        <input type="email" id="new-email" placeholder="joao@empresa.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="new-role">Cargo / Setor</label>
+                        <input type="text" id="new-role" placeholder="Ex: Desenvolvedor Front-end" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="new-password">Senha Inicial</label>
+                        <input type="password" id="new-password" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <button type="submit" id="register-btn" class="btn-primary">Cadastrar Funcionário</button>
+                </form>
+            </div>
         </section>
     </div>
-    <script type="module" src="admin.js"></script>
+
+    <script type="module" src="dashboard.js"></script>
 </body>
 </html>

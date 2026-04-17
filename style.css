@@ -123,3 +123,29 @@ button:hover {
 .btn-primary:hover {
     background-color: #2980b9;
 }
+
+.hidden {
+    display: none !important;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-secondary:hover:not([disabled]) {
+    background-color: #7f8c8d;
+}
+
+.btn-secondary[disabled] {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
