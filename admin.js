@@ -31,6 +31,13 @@ addUserForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('new-email').value;
     const password = document.getElementById('new-password').value;
     const role = document.getElementById('new-role').value;
+    const salary = document.getElementById('new-salary').value;
+    const address = document.getElementById('new-address').value;
+    const entryTime = document.getElementById('new-entry-time').value;
+    const exitTime = document.getElementById('new-exit-time').value;
+    const lunchStart = document.getElementById('new-lunch-start').value;
+    const lunchEnd = document.getElementById('new-lunch-end').value;
+    const startDate = document.getElementById('new-start-date').value;
 
     try {
         // 1. Cria o usuário na autenticação usando a instância secundária
@@ -42,13 +49,24 @@ addUserForm.addEventListener('submit', async (e) => {
             nome: name,
             email: email,
             cargo: role,
-            dataCadastro: new Date().toISOString()
+            salario: parseFloat(salary), // Converte para número
+            endereco: address,
+            horarioEntrada: entryTime,
+            horarioSaida: exitTime,
+            horarioAlmocoInicio: lunchStart,
+            horarioAlmocoFim: lunchEnd,
+            dataEntrada: startDate, // Armazena como string, pode ser convertido para Date se necessário
+            dataCadastro: new Date().toISOString() // Data de cadastro no sistema
         });
 
         alert('Funcionário cadastrado com sucesso!');
         addUserForm.reset();
     } catch (error) {
-        alert('Erro ao cadastrar funcionário: ' + error.message);
+        if (error.code === 'auth/email-already-in-use') {
+            alert('Erro: O e-mail informado já está em uso por outro funcionário.');
+        } else {
+            alert('Erro ao cadastrar funcionário: ' + error.message);
+        }
     } finally {
         addBtn.textContent = 'Cadastrar Funcionário';
         // Desloga do app secundário para limpar a sessão cacheada dele
